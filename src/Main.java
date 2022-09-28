@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @SuppressWarnings({"deprecation", "MagicConstant"})
 public class Main {
@@ -27,8 +28,6 @@ public class Main {
         for (Manufacturer m : manufacturerList)
             listId.add(Integer.parseInt(m.toString().substring(0,1)));
 
-
-        //add function of edit info
         System.out.println("""
                 ----Program menu----
                 1 Show data with arrays
@@ -41,13 +40,15 @@ public class Main {
                 8 Show info about manufacturer by Date
                 9 Show info about souvenirs by Date
                 10 Delete the manufacturer and your souvenirs
+                11 Edit data about souvenir
                 0 Exit""");
 
         while (control!=0){
             System.out.print("\nEnter the point of menu -> "); control = scanner.nextInt();
 
             String nameSouvenir, nameManufacturer, countryManufacturer;
-            int idManufact,idManufacturer, year, day, month;
+            int idManufacturer; //variable for both table(souvenir&manufacturer)
+            int year, day, month;
             double price;
             boolean checkAppearElement;
 
@@ -76,23 +77,23 @@ public class Main {
                 }
                 case 3 -> {
                         System.out.print("Add souvenir\nInput name souvenir -> "); nameSouvenir = scanner.next();
-                        System.out.print("Input request manufacturer -> "); idManufact = scanner.nextInt();
+                        System.out.print("Input request manufacturer -> "); idManufacturer = scanner.nextInt();
                         System.out.print("Input year created -> "); year = scanner.nextInt();
                         System.out.print("Input month created -> "); month = scanner.nextInt();
                         System.out.print("Input day created -> "); day = scanner.nextInt();
                         System.out.print("Input price of the souvenir -> "); price = scanner.nextDouble();
 
-                        checkAppearElement = manufacturerList.stream().anyMatch(id -> id.getIdManufacturer() == idManufact);
+                        checkAppearElement = manufacturerList.stream().anyMatch(id -> id.getIdManufacturer() == idManufacturer);
                         if (checkAppearElement) {
-                            souvenirList.add(new Souvenir(idManufact, nameSouvenir, new Date(year, month, day), price));
+                            souvenirList.add(new Souvenir(idManufacturer, nameSouvenir, new Date(year, month, day), price));
                             System.out.println("Data added success ...");
                         } else System.out.println("This company doesn't exist. Choose right company");
                 }
                 case 4 -> {
-                    System.out.print("Find souvenirs by manufacturer\nInput id manufacturer -> "); idManufact = scanner.nextInt();
-                    checkAppearElement = souvenirList.stream().anyMatch(id -> id.getIdManufacturer() == idManufact);
+                    System.out.print("Find souvenirs by manufacturer\nInput id manufacturer -> "); idManufacturer = scanner.nextInt();
+                    checkAppearElement = souvenirList.stream().anyMatch(id -> id.getIdManufacturer() == idManufacturer);
                     if (checkAppearElement)
-                        souvenirList.stream().filter(comp -> comp.getIdManufacturer() == idManufact).forEach(System.out::println);
+                        souvenirList.stream().filter(comp -> comp.getIdManufacturer() == idManufacturer).forEach(System.out::println);
                     else System.out.println("This company doesn't exist. Enter the right id again");
                 }
                 case 5 -> {
@@ -115,7 +116,8 @@ public class Main {
                 case 6 -> {
                     System.out.print("Input price (,) of the souvenir -> "); price = scanner.nextDouble();
                     List<Souvenir> filterList;
-                    filterList = souvenirList.stream().filter(p -> p.getPrice()<price).collect(Collectors.toList());
+                    double finalPrice = price;
+                    filterList = souvenirList.stream().filter(p -> p.getPrice()< finalPrice).collect(Collectors.toList());
 
                     if(!filterList.isEmpty()){
                         int id;
@@ -168,6 +170,7 @@ public class Main {
 
                     List<Manufacturer> filterList = manufacturerList.stream()
                             .filter(n -> nameManufacturer.equals(n.getNameManufacturer())).toList();
+                    
                     if(filterList.isEmpty()) System.out.println("Such company doesn't exist");
                     else {
                         for (Manufacturer m : filterList)
@@ -194,6 +197,31 @@ public class Main {
                     }
                     souvenirList.forEach(System.out::println);System.out.println();
                     manufacturerList.forEach(System.out::println);
+
+                }
+                case 11 -> {
+                    System.out.print("Input id the souvenir "); idManufacturer = scanner.nextInt();
+                    System.out.print("Input name the souvenir "); nameSouvenir = scanner.next();
+
+                    String finalNameSouvenir = nameSouvenir;
+                    int indexSouvenir = IntStream.range(0,souvenirList.size())
+                            .filter(i -> souvenirList.get(i).getIdManufacturer() == idManufacturer & souvenirList.get(i).getNameSouvenir().equals(finalNameSouvenir))
+                            .findAny().orElse(-1);
+
+                    if(indexSouvenir!=-1) {
+                        System.out.println("Enter new name souvenir -> ");
+                        nameSouvenir = scanner.next();
+                        System.out.println("Enter new year of created -> ");
+                        year = scanner.nextInt();
+                        System.out.println("Enter new month of created -> ");
+                        month = scanner.nextInt();
+                        System.out.println("Enter new day of created -> ");
+                        day = scanner.nextInt();
+                        System.out.println("Enter new price of souvenir -> ");
+                        price = scanner.nextInt();
+                        souvenirList.set(indexSouvenir, new Souvenir(idManufacturer, nameSouvenir, new Date(year, month, day), price));
+
+                    }else System.out.println("There isn't souvenir");
 
                 }
             }
